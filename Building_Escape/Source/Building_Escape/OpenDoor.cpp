@@ -3,6 +3,8 @@
 
 #include "OpenDoor.h"
 #include "GameFramework/Actor.h"
+#include "GameFramework/PlayerController.h"
+#include "Engine/World.h"
 
 
 // Sets default values for this component's properties
@@ -23,6 +25,8 @@ void UOpenDoor::BeginPlay()
 	InitialYaw = GetOwner()->GetActorRotation().Yaw;
 	CurrentYaw = InitialYaw;
 	TargetYaw += InitialYaw; //TargetYaw = TargetYaw + InitialYaw;
+
+	ActorOpenDoor = GetWorld()->GetFirstPlayerController()->GetPawn();
 }
 
 
@@ -34,13 +38,15 @@ void UOpenDoor::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 	UE_LOG(LogTemp, Warning, TEXT("%s"), *GetOwner()->GetActorRotation().ToString());
 	UE_LOG(LogTemp, Warning, TEXT("Yaw is: %f"), GetOwner()->GetActorRotation().Yaw);
 
-	this->OpenDoor(DeltaTime * 0.5f);
+	if (PressurePlate->IsOverlappingActor(ActorOpenDoor)) {
+		this->OpenDoor(DeltaTime * 0.5f);
+	}
 }
 
 void UOpenDoor::OpenDoor(float rate) {
 	CurrentYaw = FMath::Lerp(CurrentYaw, TargetYaw, rate);
 	FRotator DoorRotation = GetOwner()->GetActorRotation();
 	DoorRotation.Yaw = CurrentYaw;
-	GetOwner()->SetActorRotation(DoorRotation);	
+	GetOwner()->SetActorRotation(DoorRotation);
 }
 
